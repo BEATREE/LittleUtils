@@ -49,7 +49,8 @@ def getPic(titleList, hrefList, storePath):    # 获取图片 和 存储路径
         os.mkdir(storePath + "\\你懂的")  # 创建目录
 
     for i in range(len(hrefList)):   # 循环下载排行榜
-        print("开始下载", titleList[i], "专辑...")
+        print("已加载", titleList[i], "专辑...")
+        srcList.append([])   # 添加一个子数组
         singleHtml = requests.get(hrefList[i], headers=header)
         singleHtml.encoding = singleHtml.apparent_encoding
         soup = BeautifulSoup(singleHtml.text, 'lxml')   # 开始使用BeautifulSoup
@@ -61,39 +62,44 @@ def getPic(titleList, hrefList, storePath):    # 获取图片 和 存储路径
         singleSrc = originalSrc[0]+"/"+originalSrc[1]+"/"+originalSrc[2]+"/"+originalSrc[3]+"/"+originalSrc[4]+"/"
         picType = originalSrc[5][-4:]   # 图片类型
         for index in range(eval(picNum)):
-            srcList.append(singleSrc+str(index+1)+picType)
+            srcList[i].append(singleSrc+str(index+1)+picType)
 
     downLoadPic(titleList, storePath, srcList)
 
 def downLoadPic(titleList, storePath, srcList):
     # print(srcList)
     # print(titleList)
-    for src in range(len(srcList)):
-        try:
-            s = src+1
-            header["Host"] = "img1.mm131.me"
-            content = requests.get(srcList[src], headers=header)
-            # print(content)
-            # requests.add_header()
-            # print(opener.open(srcList[src]))
-            # print(src)
-            with open(storePath + "\\你懂的\\" + str(s) + srcList[src][-4:], 'wb') as f:
-                f.write(content.content)
-                # print(content.content)
-                f.close()
-        except OSError:
-            pass
+    for i in range(len(titleList)):
+        tempSrc = srcList[i]
+        subDirName = str(titleList[i])  # 分类文件夹
+        if not os.path.exists(storePath + "\\你懂的\\" + subDirName):  # 如果存在当前目录
+            os.mkdir(storePath + "\\你懂的\\" + subDirName)  # 创建目录
+        for src in range(len(tempSrc)):
+            try:
+                s = src+1
+                header["Host"] = "img1.mm131.me"
+                content = requests.get(tempSrc[src], headers=header)
+                with open(storePath + "\\你懂的\\" + subDirName + "\\" + str(s) + tempSrc[src][-4:], 'wb') as f:
+                    f.write(content.content)
+                    print(subDirName, str(s) + tempSrc[src][-4:], "正在飞速的飞往你的文件夹~")
+
+            except OSError:
+                pass
 
 
 if __name__ == '__main__':
     opener = get_opener()
-    print("======================================================")
-    print("在你使用之前，先搞清楚这个是干什么的")
-    print("什么？你不知道？那你下他干什么啊？是不是想放飞自我？！")
-    print("那我告诉你吧，它有关Sexy，哈~")
-    print("website: http://www.teenshare.club & author: BEATREE")
-    print("======================================================")
-    storagePath = input("要下载？那就请输入存储路径吧：")
+    print("         ------------------------------------")
+    print("         |    website:www.teenshare.club    | ")
+    print("         |          author:BEATREE          | ")
+    print("         ------------------------------------")
+    print("==========================================================")
+    print("V0.0.2 版本: 1. 图片进行了分类存放 2. 添加了实时下载进度")
+    print("")
+    print("在你使用之前，得先搞清楚这个是干什么的")
+    print("什么？你不知道？那你下它干什么啊？难道不是想放飞自我？！")
+    print("==========================================================")
+    storagePath = input("想试试？那就快输入存储路径吧：")
     allHtml = requests.get("http://www.mm131.com/", headers=header)  # 返回的是response对象而不是网页内容
     opener.open(request.Request("http://www.mm131.com/"))
     allHtml.encoding = allHtml.apparent_encoding
